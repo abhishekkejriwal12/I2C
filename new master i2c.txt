@@ -1,0 +1,67 @@
+//Header files
+#include <stdint.h>
+#include <stdbool.h>
+#include "inc/tm4c123gh6pm.h"
+#include "inc/hw_memmap.h"
+#include "inc/hw_types.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/gpio.h"
+//Header files
+#include <stdint.h>
+#include <stdbool.h>
+#include "inc/tm4c123gh6pm.h"
+#include "inc/hw_memmap.h"
+#include "inc/hw_types.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/gpio.h"
+#include "driverlib/timer.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/timer.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/adc.h"
+
+#define LOCK_F (*((volatile unsigned long *)0x40025520))
+#define CR_F (*((volatile unsigned long *)0x40025524))
+//Variable to read adc value
+ char error=0;
+
+ void master_init()
+ {
+    SYSCTL_RCGCI2C_R=0x00000001;
+SysCtlPeripheralReset(SYSCTL_PERIPH_I2C0);
+    SYSCTL_RCGCGPIO_R=0x00000002;
+    GPIO_PORTB_AFSEL_R =0xc;
+    GPIO_PORTB_ODR_R=0x08;
+    GPIO_PORTB_PCTL_R=(GPIO_PORTB_PCTL_R&0xFFFF00FF)+0x3300;
+    I2C0_MCR_R=0x00000010;
+    I2C0_MTPR_R=0x00000009;
+ }
+
+
+ void master_write()
+ {
+	 I2C0_MSA_R=0x00000076;
+	 I2C0_MSA_R&=~0x01;
+	 I2C0_MDR_R|=0x00000001;
+	 I2C0_MCS_R =0x00000007;
+ }
+
+ void main()
+ {SysCtlClockSet(SYSCTL_SYSDIV_10|SYSCTL_USE_PLL|SYSCTL_XTAL_16MHZ|SYSCTL_OSC_MAIN);
+	 master_init();
+	 master_write();
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
