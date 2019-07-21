@@ -1,0 +1,56 @@
+//Header files
+#include <stdint.h>
+#include <stdbool.h>
+#include "inc/tm4c123gh6pm.h"
+#include "inc/hw_memmap.h"
+#include "inc/hw_types.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/gpio.h"
+#include "driverlib/timer.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/adc.h"
+
+#define LOCK_F (*((volatile unsigned long *)0x40025520))
+#define CR_F (*((volatile unsigned long *)0x40025524))
+
+int x=0;
+
+void slave_init()
+{
+    SYSCTL_RCGCI2C_R|=0x00000001;
+    SYSCTL_RCGCGPIO_R|=0x00000002;
+    I2C0_MCR_R|=0x20;
+    GPIO_PORTB_AFSEL_R |=0xc;
+    GPIO_PORTB_ODR_R|=0x08;
+    GPIO_PORTB_PCTL_R|=(GPIO_PORTB_PCTL_R&0xFFFF00FF)+0x3300;
+    I2C0_SOAR_R|=0x00000076;
+    I2C0_SCSR_R|=0x00000001;
+    }
+
+void main()
+{
+     SysCtlClockSet(SYSCTL_SYSDIV_10|SYSCTL_USE_PLL|SYSCTL_XTAL_16MHZ|SYSCTL_OSC_MAIN);
+
+	//Port initialisation as Output
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+	GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3);
+          slave_init();
+    if(I2C0_SCSR_R==0x00000001)
+     {   if(I2C0_SDR_R==0x00000001)
+             while(1){ {x^=0x02;
+                GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3,x); //Write on Output pins
+        SysCtlDelay(SysCtlClockGet()/3);}}}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
